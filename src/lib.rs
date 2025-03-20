@@ -11,7 +11,7 @@ pub struct ThreadPool {
 type Job = Box<dyn FnOnce() + Send + 'static>;
 
 impl ThreadPool {
-    pub fn new(size: usize) -> ThreadPool {
+    pub fn build(size: usize) -> ThreadPool {
         assert!(size > 0, "Thread pool size must be greater than zero");
 
         let (sender, receiver) = mpsc::channel::<Job>(); // Tambahkan tipe Job
@@ -56,5 +56,16 @@ impl Drop for ThreadPool {
         for thread in self.threads.drain(..) {
             thread.join().unwrap();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_threadpool_build() {
+        let pool = ThreadPool::build(4);
+        assert_eq!(pool.threads.len(), 4);
     }
 }
